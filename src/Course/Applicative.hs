@@ -38,8 +38,7 @@ class Apply f => Applicative f where
   (a -> b)
   -> f a
   -> f b
-(<$>) =
-  error "todo"
+(<$>) f m = pure f <*> m
 
 -- | Insert into Id.
 --
@@ -48,8 +47,7 @@ instance Applicative Id where
   pure ::
     a
     -> Id a
-  pure =
-    error "todo"
+  pure = Id
 
 -- | Insert into a List.
 --
@@ -58,8 +56,7 @@ instance Applicative List where
   pure ::
     a
     -> List a
-  pure =
-    error "todo"
+  pure = (:. Nil)
 
 -- | Insert into an Optional.
 --
@@ -68,8 +65,7 @@ instance Applicative Optional where
   pure ::
     a
     -> Optional a
-  pure =
-    error "todo"
+  pure = Full
 
 -- | Insert into a constant function.
 --
@@ -78,8 +74,7 @@ instance Applicative ((->) t) where
   pure ::
     a
     -> ((->) t a)
-  pure =
-    error "todo"
+  pure = const
 
 -- | Sequences a list of structures to a structure of list.
 --
@@ -97,12 +92,8 @@ instance Applicative ((->) t) where
 --
 -- >>> sequence ((*10) :. (+2) :. Nil) 6
 -- [60,8]
-sequence ::
-  Applicative f =>
-  List (f a)
-  -> f (List a)
-sequence =
-  error "todo"
+sequence :: Applicative f => List (f a) -> f (List a)
+sequence = foldRight (lift2 (:.)) (pure Nil)
 
 -- | Replicate an effect a given number of times.
 --
@@ -120,13 +111,9 @@ sequence =
 --
 -- >>> replicateA 3 ['a', 'b', 'c']
 -- ["aaa","aab","aac","aba","abb","abc","aca","acb","acc","baa","bab","bac","bba","bbb","bbc","bca","bcb","bcc","caa","cab","cac","cba","cbb","cbc","cca","ccb","ccc"]
-replicateA ::
-  Applicative f =>
-  Int
-  -> f a
-  -> f (List a)
-replicateA =
-  error "todo"
+replicateA :: Applicative f => Int -> f a -> f (List a)
+replicateA 0 _ = pure Nil
+replicateA n f = (:.) <$> f <*> (replicateA (n - 1) f)
 
 -- | Filter a list with a predicate that produces an effect.
 --
@@ -153,9 +140,9 @@ filtering ::
   (a -> f Bool)
   -> List a
   -> f (List a)
-filtering =
-  error "todo"
-
+filtering _ Nil = pure Nil
+filtering f (x :. rest) = (\m xs -> if m then x :. xs else xs) <$> (f x) <*>
+                                         (filtering f rest)
 -----------------------
 -- SUPPORT LIBRARIES --
 -----------------------
