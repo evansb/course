@@ -234,9 +234,7 @@ flattenAgain = flatMap id
 seqOptional ::
   List (Optional a)
   -> Optional (List a)
-seqOptional = foldLeft (\(Full xs) m -> case m of
-                            Full x -> Full (x :. xs)
-                            Empty  -> Empty) (Full Nil)
+seqOptional = foldRight (twiceOptional (:.)) (Full Nil)
 
 -- | Find the first element in the list matching the predicate.
 --
@@ -309,7 +307,7 @@ produce ::
   (a -> a)
   -> a
   -> List a
-produce f seed = f seed :. produce f (f seed)
+produce f seed = seed :. produce f (f seed)
 
 -- | Do anything other than reverse a list.
 -- Is it even possible?
@@ -323,7 +321,7 @@ produce f seed = f seed :. produce f (f seed)
 notReverse ::
   List a
   -> List a
-notReverse = id
+notReverse = reverse
 
 largeList ::
   List Int
