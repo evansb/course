@@ -72,8 +72,7 @@ type FilePath =
 run ::
   Chars
   -> IO ()
-run =
-  error "todo"
+run = undefined
 
 getFiles ::
   List FilePath
@@ -97,6 +96,5 @@ printFile ::
   FilePath
   -> Chars
   -> IO ()
-printFile =
-  error "todo"
+printFile fi= undefined
 
